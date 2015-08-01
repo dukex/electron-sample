@@ -7,6 +7,7 @@ PREBUILT_PACKAGE_JSON_PATH="$PREBUILT_PATH/package.json"
 PACKAGE_JSON_PATH="package.json"
 BUILD_OUTPUT_PATH="./release"
 COMPILE_COMMAND="./script/compile"
+ICON_PATH="./resources/mac/app.icns"
 
 IGNORE_PATHS="node_modules/electron-compile/node_modules/electron-compilers|node_modules/\\.bin|node_modules/electron-rebuild|node_modules/electron-jasmine|(/release$)|(/script$)|(/spec$)"
 
@@ -24,4 +25,4 @@ APP_NAME=${APP_NAME[1]}
 $COMPILE_COMMAND
 
 echo "Building $APP_NAME"
-$PACKAGER_PATH ./ $APP_NAME --overwrite --platform darwin --arch x64 --version "$ELECTRON_VERSION" --ignore "$IGNORE_PATHS" --out "$BUILD_OUTPUT_PATH" $@
+$PACKAGER_PATH ./ $APP_NAME --overwrite --platform darwin --arch x64 --icon "$ICON_PATH" --version "$ELECTRON_VERSION" --ignore "$IGNORE_PATHS" --out "$BUILD_OUTPUT_PATH" $@
