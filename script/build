@@ -21,7 +21,10 @@ ELECTRON_VERSION=${ELECTRON_VERSION[1]}
 APP_NAME=($( json_value $PACKAGE_JSON_PATH "appName" ))
 APP_NAME=${APP_NAME[1]}
 
+PLATFORM=${PLATFORM:-$( node -e "console.log(process.platform)" )}
+ARCH=${ARCH:-$( node -e "console.log(process.arch)" )}
+
 $COMPILE_COMMAND
 
 echo "Building $APP_NAME"
-$PACKAGER_PATH ./ $APP_NAME --overwrite --platform darwin --arch x64 --version "$ELECTRON_VERSION" --ignore "$IGNORE_PATHS" --out "$BUILD_OUTPUT_PATH" $@
+$PACKAGER_PATH ./ $APP_NAME --overwrite --platform $PLATFORM --arch $ARCH --version "$ELECTRON_VERSION" --ignore "$IGNORE_PATHS" --out "$BUILD_OUTPUT_PATH" $@
