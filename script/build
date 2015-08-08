@@ -1,27 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env node
 
-MODULE_PATH="./node_modules"
-PACKAGER_PATH="$MODULE_PATH/.bin/electron-packager"
-PREBUILT_PATH="$MODULE_PATH/electron-prebuilt"
-PREBUILT_PACKAGE_JSON_PATH="$PREBUILT_PATH/package.json"
-PACKAGE_JSON_PATH="package.json"
-BUILD_OUTPUT_PATH="./release"
-COMPILE_COMMAND="./script/compile"
+var fs = require('fs');
+var proc = require('child_process');
 
-IGNORE_PATHS="node_modules/electron-compile/node_modules/electron-compilers|node_modules/\\.bin|node_modules/electron-rebuild|node_modules/electron-jasmine|(/release$)|(/script$)|(/spec$)"
+function json_value(path, value) { return JSON.parse(fs.readFileSync(path).toString())[value]; };
 
-function json_value {
-  # From https://gist.github.com/cjus/1047794
-  cat $1 | sed 's/\\\\\//\//g' | sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w $2 | tr ": " " "
-}
+var modulePath = './node_modules';
+var packagerCmd = modulePath + '/.bin/electron-packager';
+var prebuiltPath = modulePath + '/electron-prebuilt';
+var prebuiltPkgPath = prebuiltPath + '/package.json';
+var buildOutputPath = './release';
+var compileCmd = './script/compile';
 
-ELECTRON_VERSION=($( json_value $PREBUILT_PACKAGE_JSON_PATH "version" ))
-ELECTRON_VERSION=${ELECTRON_VERSION[1]}
+var ignorePaths='node_modules/electron-compile/node_modules/electron-compilers|node_modules/\\.bin|node_modules/electron-rebuild|node_modules/electron-jasmine|(/release$)|(/script$)|(/spec$)';
 
-APP_NAME=($( json_value $PACKAGE_JSON_PATH "appName" ))
-APP_NAME=${APP_NAME[1]}
+var electronVersion = json_value(prebuiltPkgPath, 'version');
+var appName = json_value('package.json', 'appName');
 
-$COMPILE_COMMAND
+proc.spawnSync(compileCmd, [], {stdio: 'inherit'});
 
-echo "Building $APP_NAME"
-$PACKAGER_PATH ./ $APP_NAME --overwrite --platform darwin --arch x64 --version "$ELECTRON_VERSION" --ignore "$IGNORE_PATHS" --out "$BUILD_OUTPUT_PATH" $@
+console.log('Building ' + appName);
+
+var defaultArgs = ['./', appName, '--overwrite', '--platform', process.platform, '--arch', process.arch, '--version', electronVersion, '--ignore', ignorePaths, '--out', buildOutputPath];
+var args = defaultArgs.concat(process.argv.splice(2));
+
+proc.spawn(packagerCmd, args, {stdio: 'inherit'});
